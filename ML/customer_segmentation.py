@@ -3,6 +3,41 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+
+np.random.seed(42)
+
+n = 180
+
+data = pd.DataFrame({
+    'annual_spending': np.random.randint(500, 20000, n),
+    'purchase_frequency': np.random.randint(1, 50, n),
+    'age': np.random.randint(18, 70, n)
+})
+
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(data)
+
+# Elbow method
+inertia = []
+for k in range(1, 6):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(scaled_data)
+    inertia.append(kmeans.inertia_)
+
+plt.plot(range(1,6), inertia)
+plt.xlabel("K")
+plt.ylabel("Inertia")
+plt.title("Elbow Method")
+plt.show()
+
+# Apply K=3
+kmeans = KMeans(n_clusters=3, random_state=42)
+data['Cluster'] = kmeans.fit_predict(scaled_data)
+
+print(data.groupby('Cluster').mean())
+
+data.to_csv("customer_segments.csv", index=False)
+
 # Generate sample customer data
 data = {
 'annual_spending': [500, 1200, 300, 1500, 800, 200, 1000, 600, 1300, 400],
