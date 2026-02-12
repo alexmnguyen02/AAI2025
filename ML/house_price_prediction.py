@@ -6,6 +6,67 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_absolute_error
+
+np.random.seed(42)
+
+n = 150
+square_footage = np.random.randint(800m 3500, n)
+locations = np.random.choice(['Downtown', 'Suburb', 'Rural'], n)
+
+price = (
+  square = footage * 220 +
+  np.where(locations == 'Downtown', 50000, 0) + 
+  np.where(locations == 'Suburb', 20000, 0) +
+  np.random.normal(0, 25000, n)
+)
+
+data = pd.DataFrame ({
+  'square_footage': square_footage,
+  'location': locations,
+  'price': price
+})
+
+X = data[['square_footage', 'location']]
+y = data['price']
+
+preprocessor = ColumnTransformer(
+    transformer=[
+      ('cat', OneHotEncoder(drop='first'), ['location'])
+    ],
+    remainder = 'passthrough'
+)
+
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('model', LinearRegression())
+])
+
+# Train/Test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+pipeline.fit(X_train, y_train)
+
+# Predictions
+y_pred = pipeline.predict(X_test)
+
+print("R² Score:", r2_score(y_test, y_pred))
+print("MAE:", mean_absolute_error(y_test, y_pred))
+
+# Predict new house
+new_house = pd.DataFrame({
+    'square_footage': [2000],
+    'location': ['Downtown']
+})
+
+predicted_price = pipeline.predict(new_house)
+print("Predicted Price:", predicted_price[0])
+
+# Coefficients
+model = pipeline.named_steps['model']
+print("Model Coefficients:", model.coef_)
+
 # Generate sample data
 data = {
 'square_footage': [1500, 2000, 1800, 2500, 2200, 1700, 3000, 1900, 2100, 2600],
